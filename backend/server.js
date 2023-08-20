@@ -1,8 +1,10 @@
 const express = require("express");
 require("dotenv").config();
-const router = require("./routes/goalRoutes");
+const goalRouter = require("./routes/goalRoutes");
+const userRouter = require("./routes/userRoutes");
 const { errorHandler } = require("./middleware/errorMiddleWare");
 const connectDB = require("./config/db");
+
 const port = process.env.PORT || 5000;
 
 connectDB();
@@ -12,7 +14,8 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use("/api/goals", router);
+app.use("/api/goals", goalRouter);
+app.use("/api/users", userRouter);
 
 app.use(errorHandler);
 
