@@ -5,15 +5,32 @@ const mongoose = require("mongoose");
 
 const getGoal = asyncHandler(async (req, res) => {
   const { id } = req.params;
+
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(404).json({ error: `No such goal with id: ${id}` });
   }
+
+  const user = await User.findById(req.user.id);
+
+  //Check for user
+  if (!user) {
+    res.status(401);
+    throw new Error("User not found");
+  }
+
   const goal = await Goal.findById(id);
+
+  //Make sure the logged in user matches the goal user
+  if (goal.user.toString() !== user.id) {
+    res.status(401);
+    throw new Error("User not authorized");
+  }
+
   res.status(200).json(goal);
 });
 
 const getGoals = asyncHandler(async (req, res) => {
-  const goal = await Goal.find();
+  const goal = await Goal.find({ user: req.user.id });
   res.status(200).json(goal);
 });
 
