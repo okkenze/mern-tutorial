@@ -87,6 +87,21 @@ const getUser = asyncHandler(async (req, res) => {
   }
 
   const userExists = await User.findOne({ email });
+
+  if (req.headers.authorization && userExists) {
+    let token = req.headers.authorization.split(" ")[1];
+    //Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (decoded.id != userExists._id) {
+      res.status(400);
+      throw new Error("Invalid user token");
+    }
+  } else {
+    res.status(401);
+    throw new Error("Not authorized");
+  }
+
   if (userExists) {
     return res.status(200).json({
       _id: userExists._id,
